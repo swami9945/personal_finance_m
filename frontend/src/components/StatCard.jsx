@@ -1,29 +1,16 @@
-export default function StatCard({
-  label,
-  value,
-  detail,
-  icon: Icon,
-  tone = "mint",
-}) {
+function StatCard({ title, value, icon, description }) {
   return (
-    <article className="stat-card">
+    <div className="stat-card">
       <div className="stat-top">
-        <span className="stat-label">{label}</span>
-        <span className={`stat-icon ${tone}`}>
-          <Icon size={17} />
-        </span>
+        <span className="stat-title">{title}</span>
+        <div className="stat-icon">{icon}</div>
       </div>
-      <strong>{value}</strong>
-      <div className="stat-sparkline" aria-hidden="true">
-        <i />
-        <i />
-        <i />
-        <i />
-        <i />
-        <i />
-        <i />
-      </div>
-      <div className="stat-foot">{detail}</div>
-    </article>
+
+      <h2>{value}</h2>
+
+      {description && <p>{description}</p>}
+    </div>
   );
 }
+
+export default StatCard;

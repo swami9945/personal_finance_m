@@ -1,66 +1,169 @@
-import { Pencil, Trash2 } from "lucide-react";
-import { formatCurrency, formatDate, initials } from "../utils/formatters";
+import { Link } from "react-router-dom";
 
-export default function TransactionTable({ transactions, onEdit, onDelete }) {
+function TransactionTable({ transactions = [], onDelete }) {
+  if (transactions.length === 0) {
+    return (
+      <div className="transaction-empty">
+        <div className="transaction-empty-icon">₹</div>
+        <h3>No transactions yet</h3>
+        <p>Add your first income or expense to see it here.</p>
+
+        <Link to="/transactions" className="add-transaction-link">
+          Add Transaction →
+        </Link>
+      </div>
+    );
+  }
+
   return (
-    <div className="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>Transaction</th>
-            <th>Category</th>
-            <th>Date</th>
-            <th>Type</th>
-            <th className="align-right">Amount</th>
-            <th aria-label="Actions" />
-          </tr>
-        </thead>
-        <tbody>
-          {transactions.map((transaction) => (
-            <tr key={transaction.id}>
-              <td>
-                <div className="table-merchant">
-                  <span className="merchant-icon blue">
-                    {initials(transaction.merchant)}
+    <div className="transaction-table-wrapper">
+
+      <div className="transaction-table-header">
+        <div className="transaction-title-area">
+          <div className="transaction-main-icon">
+            ₹
+          </div>
+
+          <div>
+            <h2>Recent Transactions</h2>
+            <p>Your latest financial activity</p>
+          </div>
+        </div>
+
+        <Link
+          to="/transactions"
+          className="view-all-button"
+        >
+          View All →
+        </Link>
+      </div>
+
+      <div className="transaction-table">
+
+        <div className="transaction-table-head">
+
+          <div>Description</div>
+          <div>Category</div>
+          <div>Date</div>
+          <div>Type</div>
+          <div>Amount</div>
+          <div>Action</div>
+
+        </div>
+
+        {transactions.map((transaction) => {
+
+          const isIncome =
+            transaction.type === "INCOME";
+
+          return (
+            <div
+              className={`transaction-row ${
+                isIncome
+                  ? "income-row"
+                  : "expense-row"
+              }`}
+              key={transaction.id}
+            >
+
+              {/* Description */}
+              <div className="transaction-description">
+
+                <div
+                  className={`transaction-icon ${
+                    isIncome
+                      ? "income-icon"
+                      : "expense-icon"
+                  }`}
+                >
+                  {isIncome ? "↗" : "↘"}
+                </div>
+
+                <div>
+                  <strong>
+                    {transaction.description ||
+                      "No description"}
+                  </strong>
+
+                  <span>
+                    {transaction.category ||
+                      "Other"}
                   </span>
-                  <strong>{transaction.merchant}</strong>
                 </div>
-              </td>
-              <td>{transaction.category}</td>
-              <td>{formatDate(transaction.date)}</td>
-              <td>
-                <span className={`status ${transaction.type}`}>
-                  {transaction.type}
+
+              </div>
+
+              {/* Category */}
+              <div className="transaction-category">
+                {transaction.category ||
+                  "Other"}
+              </div>
+
+              {/* Date */}
+              <div className="transaction-date">
+                <span>📅</span>
+                {transaction.transactionDate}
+              </div>
+
+              {/* Type */}
+              <div>
+
+                <span
+                  className={`transaction-badge ${
+                    isIncome
+                      ? "income-badge"
+                      : "expense-badge"
+                  }`}
+                >
+                  {isIncome
+                    ? "↗ INCOME"
+                    : "↘ EXPENSE"}
                 </span>
-              </td>
-              <td
-                className={`align-right amount ${transaction.type === "income" ? "income-amount" : ""}`}
+
+              </div>
+
+              {/* Amount */}
+              <div
+                className={`transaction-amount ${
+                  isIncome
+                    ? "income-amount"
+                    : "expense-amount"
+                }`}
               >
-                {formatCurrency(transaction.amount)}
-              </td>
-              <td>
-                <div className="row-actions">
+                {isIncome ? "+" : "-"}₹
+                {Number(
+                  transaction.amount || 0
+                ).toLocaleString("en-IN")}
+              </div>
+
+              {/* Action */}
+              <div>
+
+                {onDelete && (
                   <button
-                    aria-label={`Edit ${transaction.merchant}`}
-                    onClick={() => onEdit(transaction)}
+                    className={`delete-transaction-button ${
+                      isIncome
+                        ? "delete-income"
+                        : "delete-expense"
+                    }`}
+                    onClick={() =>
+                      onDelete(transaction.id)
+                    }
                   >
-                    <Pencil size={15} />
+                    🗑 Delete
                   </button>
-                  <button
-                    aria-label={`Delete ${transaction.merchant}`}
-                    onClick={() => onDelete(transaction.id)}
-                  >
-                    <Trash2 size={15} />
-                  </button>
-                </div>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      {transactions.length === 0 && (
-        <p className="empty-state">No transactions match your filters.</p>
-      )}
+                )}
+
+              </div>
+
+            </div>
+          );
+        })}
+
+      </div>
+
     </div>
   );
 }
+
+export default TransactionTable;

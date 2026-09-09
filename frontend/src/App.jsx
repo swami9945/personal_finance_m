@@ -1,46 +1,213 @@
-import { Navigate, Route, Routes } from "react-router-dom";
-import ProtectedRoute from "./components/ProtectedRoute";
-import AuthLayout from "./layouts/AuthLayout";
-import MainLayout from "./layouts/MainLayout";
-import AddExpense from "./pages/AddExpense";
-import AddIncome from "./pages/AddIncome";
-import Analytics from "./pages/Analytics";
-import Budgets from "./pages/Budgets";
-import Dashboard from "./pages/Dashboard";
-import Login from "./pages/Login";
-import Notifications from "./pages/Notifications";
-import Profile from "./pages/Profile";
-import RecurringTransactions from "./pages/RecurringTransactions";
-import Register from "./pages/Register";
-import Reports from "./pages/Reports";
-import SavingsGoals from "./pages/SavingsGoals";
-import Transactions from "./pages/Transactions";
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Navigate
+} from "react-router-dom";
 
-export default function App() {
+import Sidebar from "./components/Sidebar";
+
+import Calculator from "./pages/Calculator";
+import SavingsGoals from "./pages/SavingsGoals";
+
+import Dashboard from "./pages/Dashboard";
+import Transactions from "./pages/Transactions";
+import Income from "./pages/Income";
+import Expenses from "./pages/Expenses";
+import Budget from "./pages/Budget";
+import Reports from "./pages/Reports";
+
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+
+import "./App.css";
+
+
+function MainLayout({ children }) {
   return (
-    <Routes>
-      <Route element={<AuthLayout />}>
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-      </Route>
-      <Route element={<ProtectedRoute />}>
-        <Route path="/app" element={<MainLayout />}>
-          <Route index element={<Navigate to="dashboard" replace />} />
-          <Route path="dashboard" element={<Dashboard />} />
-          <Route path="transactions" element={<Transactions />} />
-          <Route path="income" element={<AddIncome />} />
-          <Route path="expense" element={<AddExpense />} />
-          <Route path="budgets" element={<Budgets />} />
-          <Route path="savings-goals" element={<SavingsGoals />} />
-          <Route path="recurring" element={<RecurringTransactions />} />
-          <Route path="analytics" element={<Analytics />} />
-          <Route path="reports" element={<Reports />} />
-          <Route path="notifications" element={<Notifications />} />
-          <Route path="profile" element={<Profile />} />
-        </Route>
-      </Route>
-      <Route path="/" element={<Navigate to="/app/dashboard" replace />} />
-      <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
+    <div className="main-layout">
+
+      <Sidebar />
+
+      <main className="main-content">
+        {children}
+      </main>
+
+    </div>
   );
 }
+
+
+function App() {
+  return (
+    <BrowserRouter>
+
+      <div className="app">
+
+        <Routes>
+
+          {/* =========================
+              START
+          ========================= */}
+
+          <Route
+            path="/"
+            element={
+              <Navigate
+                to="/login"
+                replace
+              />
+            }
+          />
+
+
+          {/* =========================
+              AUTHENTICATION
+          ========================= */}
+
+          <Route
+            path="/login"
+            element={<Login />}
+          />
+
+          <Route
+            path="/register"
+            element={<Register />}
+          />
+
+
+          {/* =========================
+              DASHBOARD
+          ========================= */}
+
+          <Route
+            path="/dashboard"
+            element={
+              <MainLayout>
+                <Dashboard />
+              </MainLayout>
+            }
+          />
+
+
+          {/* =========================
+              TRANSACTIONS
+          ========================= */}
+
+          <Route
+            path="/transactions"
+            element={
+              <MainLayout>
+                <Transactions />
+              </MainLayout>
+            }
+          />
+
+
+          {/* =========================
+              INCOME
+          ========================= */}
+
+          <Route
+            path="/income"
+            element={
+              <MainLayout>
+                <Income />
+              </MainLayout>
+            }
+          />
+
+
+          {/* =========================
+              EXPENSES
+          ========================= */}
+
+          <Route
+            path="/expenses"
+            element={
+              <MainLayout>
+                <Expenses />
+              </MainLayout>
+            }
+          />
+
+
+          {/* =========================
+              BUDGET
+          ========================= */}
+
+          <Route
+            path="/budget"
+            element={
+              <MainLayout>
+                <Budget />
+              </MainLayout>
+            }
+          />
+
+
+          {/* =========================
+              REPORTS
+          ========================= */}
+
+          <Route
+            path="/reports"
+            element={
+              <MainLayout>
+                <Reports />
+              </MainLayout>
+            }
+          />
+
+
+          {/* =========================
+              CALCULATOR
+          ========================= */}
+
+          <Route
+            path="/calculator"
+            element={
+              <MainLayout>
+                <Calculator />
+              </MainLayout>
+            }
+          />
+
+
+          {/* =========================
+              SAVINGS GOALS
+          ========================= */}
+
+          <Route
+            path="/savings-goals"
+            element={
+              <MainLayout>
+                <SavingsGoals />
+              </MainLayout>
+            }
+          />
+
+
+          {/* =========================
+              UNKNOWN URL
+          ========================= */}
+
+          <Route
+            path="*"
+            element={
+              <Navigate
+                to="/login"
+                replace
+              />
+            }
+          />
+
+        </Routes>
+
+      </div>
+
+    </BrowserRouter>
+  );
+}
+
+export default App;

@@ -1,78 +1,131 @@
 import { useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
-import useAuth from "../hooks/useAuth";
-import { login } from "../services/authService";
+import { Link, useNavigate } from "react-router-dom";
+import { api } from "../services/api";
 
-export default function Login() {
+function Login() {
+  const navigate = useNavigate();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+
   const [loading, setLoading] = useState(false);
-  const { signIn } = useAuth();
-  const navigate = useNavigate();
-  const location = useLocation();
-  const sessionExpired =
-    new URLSearchParams(location.search).get("session") === "expired";
-  function submit(event) {
+  const [error, setError] = useState("");
+
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    setLoading(true);
+
     setError("");
-    login({ email, password })
-      .then((account) => {
-        signIn(account);
-        navigate(location.state?.from?.pathname || "/app/dashboard", {
-          replace: true,
-        });
-      })
-      .catch((requestError) =>
-        setError(
-          requestError.response?.data?.message ||
-            "Unable to sign in. Check your details.",
-        ),
-      )
-      .finally(() => setLoading(false));
-  }
+
+    if (!email || !password) {
+      setError("Please enter email and password.");
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      const response = await api.login({
+        email,
+        password,
+      });
+
+      // Save logged-in user information
+      localStorage.setItem(
+        "user",
+        JSON.stringify(response)
+      );
+
+      alert(response.message || "Login successful!");
+
+      navigate("/dashboard");
+
+    } catch (error) {
+      console.error("Login error:", error);
+
+      setError(
+        error.message || "Invalid email or password."
+      );
+
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <section className="auth-card">
-      <p className="eyebrow">Welcome back</p>
-      <h1>Make money feel simple.</h1>
-      <p className="auth-copy">
-        Your calm, clear view of everything you earn, spend, and save.
-      </p>
-      {sessionExpired && (
-        <p className="form-error">
-          Your session expired. Please sign in again.
+    <div className="auth-page">
+      <div className="auth-card">
+
+        <div className="auth-logo">
+          <div className="auth-logo-icon">₹</div>
+
+          <div>
+            <h2>FinTrack</h2>
+            <span>Personal Finance</span>
+          </div>
+        </div>
+
+        <div className="auth-heading">
+          <h1>Welcome Back 👋</h1>
+          <p>Login to manage your personal finances</p>
+        </div>
+
+        {error && (
+          <div className="error-message">
+            {error}
+          </div>
+        )}
+
+        <form
+          onSubmit={handleSubmit}
+          className="auth-form"
+        >
+
+          <div className="form-group">
+            <label>Email</label>
+
+            <input
+              type="email"
+              placeholder="Enter your email"
+              value={email}
+              onChange={(event) =>
+                setEmail(event.target.value)
+              }
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Password</label>
+
+            <input
+              type="password"
+              placeholder="Enter your password"
+              value={password}
+              onChange={(event) =>
+                setPassword(event.target.value)
+              }
+            />
+          </div>
+
+          <button
+            type="submit"
+            className="auth-button"
+            disabled={loading}
+          >
+            {loading ? "Logging in..." : "Login"}
+          </button>
+
+        </form>
+
+        <p className="auth-footer">
+          Don't have an account?{" "}
+          <Link to="/register">
+            Create Account
+          </Link>
         </p>
-      )}
-      <form className="form-grid" onSubmit={submit}>
-        <label>
-          Email address
-          <input
-            required
-            type="email"
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
-            placeholder="you@example.com"
-          />
-        </label>
-        <label>
-          Password
-          <input
-            required
-            type="password"
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
-            placeholder="••••••••"
-          />
-        </label>
-        {error && <p className="form-error">{error}</p>}
-        <button className="primary-button" type="submit" disabled={loading}>
-          {loading ? "Signing in..." : "Sign in"}
-        </button>
-      </form>
-      <p className="auth-switch">
-        New to pocketful? <Link to="/register">Create an account</Link>
-      </p>
-    </section>
+
+      </div>
+    </div>
   );
 }
+
+export default Login;
